@@ -5,6 +5,7 @@ from sklearn import linear_model
 from sklearn.cross_validation import train_test_split
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
+from sklearn.svm import SVC
 
 def feature_extraction(folder_path):
     data=[]
@@ -44,11 +45,15 @@ def main():
 
     data_X, ture_y,name =feature_extraction(path)
     #random shuffle
-    X_train, X_test, y_train, y_test = train_test_split(data_X, ture_y, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(data_X, ture_y, test_size=0.2,random_state=0)
 
+    #clf=SVC(kernel='linear')
     clf =linear_model.SGDClassifier()
     #21 classes and using training and test data to find the prediction
+
     y_pred=clf.partial_fit(X_train, y_train,classes=[i for i in range(0,21)]).predict(X_test)
+    #y_pred=clf.fit(X_train, y_train).predict(X_test)
+   # pred=clf.predict(data_X[100])
     cm = confusion_matrix(y_test, y_pred)
     plot_confusion_matrix(cm,Cname=name)
     np.set_printoptions(precision=2)
