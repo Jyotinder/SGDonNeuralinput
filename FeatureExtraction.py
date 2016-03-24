@@ -89,6 +89,14 @@ def main():
     plt.show()
     print cross_val_score(clf, data_X,ture_y, cv=5,verbose=1)
 
+    data_X_e, ture_y_e,name_e =feature_extraction(path)
+    y_pred=clf.predict(data_X_e);
+    cm = confusion_matrix(ture_y_e, y_pred)
+    print(cm)
+    plt.figure()
+    plot_confusion_matrix(cm)
+    plt.show()
+
 
 
 if __name__=="__main__":
