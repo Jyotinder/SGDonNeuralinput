@@ -5,6 +5,7 @@ from sklearn import linear_model
 from sklearn.cross_validation import train_test_split
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
+from sklearn.cross_validation import KFold,cross_val_score
 from sklearn.svm import SVC
 from sklearn import tree
 from sklearn.externals.six import StringIO
@@ -70,102 +71,23 @@ def main():
     path=args["folderpath"]
     test_path=args["testfolderpath"]
 
-    data_X, ture_y,name =feature_extraction(path)
+    data_X, ture_y,name =feature_extraction(test_path)
     print name
     print ture_y
 
     X_train, X_test, y_train, y_test = train_test_split(data_X, ture_y, test_size=0.2,random_state=0)
-    clf = tree.DecisionTreeClassifier()
+    clf =linear_model.SGDClassifier()
     clf.fit(X_train, y_train)
-
-    dot_data = StringIO()
-    with open('tree.dot', 'w') as dotfile:
-        tree.export_graphviz(
-            clf,
-            dotfile,
-            #feature_names=['unique_suits', 'unique_ranks']
-        )
-
     y_pred=clf.predict(X_test);
     cm = confusion_matrix(y_test, y_pred)
+    plot_confusion_matrix(cm,Cname=name)
+    np.set_printoptions(precision=2)
+    print('Confusion matrix, without normalization')
     print(cm)
-    print "Probablity::"
-    print clf.predict_proba(X_test)
-
-    # tree.export_graphviz(clf, out_file=dot_data,
-    #                      #feature_names=iris.feature_names,
-    #                      #class_names=iris.target_names,
-    #                      filled=True, rounded=True,
-    #                      special_characters=True)
-
-    #graph = pydot.graph_from_dot_data(dot_data.getvalue())
-    #Image(graph.create_png())
-
-
-    # tree.export_graphviz(clf,out_file='tree.dot')
-    # with open("tree.dot", 'w') as f:
-    #     f = tree.export_graphviz(clf, out_file=f)
-
-
-
-
-   #
-   #  clf =linear_model.SGDClassifier()
-   #
-   #  clf.partial_fit(X_train, y_train,classes=[i for i in range(0,21)])
-   #
-   #
-   #
-   # #print clf.predict(X_test[20]) #for known classes for UC_MERCED DATA
-   # # print y_test[20]
-   #
-   #
-   #
-   #
-   #
-   #  test_name = os.listdir(test_path)
-   #  index=[]
-   #  for i in test_name:
-   #      for id,j in enumerate(name):
-   #          if i.split("_")[0] == j.split("_")[0]:
-   #              #print i,j
-   #              index.append(id)
-   #
-   #  stest_X, stest_y, stest_name =feature_extraction1(test_path,index)
-   #
-   #  print stest_name
-   #  print stest_y
-   #
-   #
-   #  print clf.predict(stest_X[38])
-   #  print stest_y[38]
-   #
-   #  spredic=clf.predict(stest_X)
-   # # print spredic
-   #  #print stest_y
-   #  cm = confusion_matrix(spredic, stest_y)
-   #  print "###########################################"
-   #  print "Matrix"
-   #  print cm
-   #  print "###########################################"
-
-
-
-    #print clf.predict(test_X[4]) Faild
-    #
-    #
-    # y_pred=clf.predict(test_X);
-    # cm = confusion_matrix(test_y, y_pred)
-    #
-    # print clf.predict(test_X);
-    #
-    # plot_confusion_matrix(cm,Cname=name)
-    # np.set_printoptions(precision=2)
-    # print('Confusion matrix, without normalization')
-    # print(cm)
-    # plt.figure()
-    # plot_confusion_matrix(cm)
-    # plt.show()
+    plt.figure()
+    plot_confusion_matrix(cm)
+    plt.show()
+    print cross_val_score(clf, data_X,ture_y, cv=5,verbose=1)
 
 
 
