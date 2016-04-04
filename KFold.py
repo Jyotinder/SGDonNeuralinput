@@ -46,10 +46,24 @@ def main():
 
     X, y,name =feature_extraction(path)
     clf =linear_model.SGDClassifier()
-    #clf=SVC(kernel='linear')
-    #print cross_val_score(estimator=clf, X=X, y=y, scoring=None, cv=10,verbose=5)
-    print cross_val_score(clf, X, y, cv=5,verbose=1)
-
+    k_fold = KFold(len(X), 5)
+    for train, test in k_fold:
+        XX=[]
+        yy=[]
+        for i in train:
+            XX.append(X[i])
+            yy.append(y[i])
+        clf.fit(XX, yy)
+        x_test=[]
+        y_test=[]
+        for j in test:
+            x_test.append(X[j])
+            y_test.append(y[j])
+        y_pred=clf.predict(x_test)
+        cm = confusion_matrix(y_test, y_pred)
+        plt.figure()
+        plot_confusion_matrix(cm)
+        plt.show()
 
 
 

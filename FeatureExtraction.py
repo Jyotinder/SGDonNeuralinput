@@ -6,6 +6,8 @@ from sklearn.cross_validation import train_test_split
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.cross_validation import KFold,cross_val_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 from sklearn import tree
 from sklearn.externals.six import StringIO
@@ -63,6 +65,41 @@ def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues,Cname=
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
+def cv_estimate(n_folds=5,X=[],y=[],name=[]):
+    """
+        Input:  X array of FV
+                Y true class of each vector
+                n_folds number of fold you want to create
+        Output: Generate Confusion matrix
+
+        Note:: This function use KFold which on each n_folds iteration
+                gives train set and test set on the X data set which are random and mutually
+                exclusive. Each train set work as a min batch(incremental set) on which SGD is trained
+                I union test set to create confusion matrix.
+    """
+    cv = KFold(len(X), n_folds=n_folds)
+    #K Fold
+
+
+    y_pred=[]
+    for train, test in cv:
+        X_partial_train=[]
+        y_partial_train=[]
+        for i in train:
+            X_partial_train.append(X[i])
+            y_partial_train.append(y[i])
+        clf = linear_model.SGDClassifier()
+        clf.fit(X_partial_train, y_partial_train)
+        X_test=[]
+        y_test=[]
+        for i in test:
+            X_test.append(X[i])
+            y_test.append(y[i])
+        y_temp=clf.predict(X_test)
+        print  accuracy_score(y_test, y_temp)
+        print(classification_report(y_test, y_temp, target_names=name))
+
+
 def main():
     parser = ap.ArgumentParser()
     parser.add_argument('-d', "--folderpath", help="npz folder",required=True)
@@ -71,31 +108,41 @@ def main():
     path=args["folderpath"]
     test_path=args["testfolderpath"]
 
-    data_X, ture_y,name =feature_extraction(test_path)
-    print name
-    print ture_y
+    data_X, ture_y,name =feature_extraction(path)
+    cv_estimate(n_folds=5,X=data_X, y=ture_y,name=name)
+    print "###############################################"
 
+    clf = linear_model.SGDClassifier()
     X_train, X_test, y_train, y_test = train_test_split(data_X, ture_y, test_size=0.2,random_state=0)
-    clf =linear_model.SGDClassifier()
     clf.fit(X_train, y_train)
-    y_pred=clf.predict(X_test);
-    cm = confusion_matrix(y_test, y_pred)
-    plot_confusion_matrix(cm,Cname=name)
-    np.set_printoptions(precision=2)
-    print('Confusion matrix, without normalization')
-    print(cm)
-    plt.figure()
-    plot_confusion_matrix(cm)
-    plt.show()
-    print cross_val_score(clf, data_X,ture_y, cv=5,verbose=1)
-
-    data_X_e, ture_y_e,name_e =feature_extraction(path)
-    y_pred=clf.predict(data_X_e);
-    cm = confusion_matrix(ture_y_e, y_pred)
-    print(cm)
-    plt.figure()
-    plot_confusion_matrix(cm)
-    plt.show()
+    y_temp=clf.predict(X_test)
+    print  accuracy_score(y_test, y_temp)
+    print(classification_report(y_test, y_temp, target_names=name))
+    print "###############################################"
+    # print name
+    # print ture_y
+    #
+    # X_train, X_test, y_train, y_test = train_test_split(data_X, ture_y, test_size=0.2,random_state=0)
+    # clf =linear_model.SGDClassifier()
+    # clf.fit(X_train, y_train)
+    # y_pred=clf.predict(X_test);
+    # cm = confusion_matrix(y_test, y_pred)
+    # plot_confusion_matrix(cm,Cname=name)
+    # np.set_printoptions(precision=2)
+    # print('Confusion matrix, without normalization')
+    # print(cm)
+    # plt.figure()
+    # plot_confusion_matrix(cm)
+    # plt.show()
+    # print cross_val_score(clf, data_X,ture_y, cv=5,verbose=1)
+    #
+    # data_X_e, ture_y_e,name_e =feature_extraction(test_path)
+    # y_pred=clf.predict(data_X_e);
+    # cm = confusion_matrix(ture_y_e, y_pred)
+    # print(cm)
+    # plt.figure()
+    # plot_confusion_matrix(cm)
+    # plt.show()
 
 
 
