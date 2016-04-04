@@ -98,7 +98,10 @@ def cv_estimate(n_folds=5,X=[],y=[],name=[]):
         y_temp=clf.predict(X_test)
         print  accuracy_score(y_test, y_temp)
         print(classification_report(y_test, y_temp, target_names=name))
-
+        print "Confusion S"
+        cm = confusion_matrix(y_test, y_temp)
+        print(cm)
+        print "Confusion E"
 
 def main():
     parser = ap.ArgumentParser()
@@ -107,18 +110,24 @@ def main():
     args = vars(parser.parse_args())
     path=args["folderpath"]
     test_path=args["testfolderpath"]
+    for loop in range(0,3):
+        data_X, ture_y,name =feature_extraction(path)
+        #cv_estimate(n_folds=5,X=data_X, y=ture_y,name=name)
 
-    data_X, ture_y,name =feature_extraction(path)
-    cv_estimate(n_folds=5,X=data_X, y=ture_y,name=name)
-    print "###############################################"
+        print "###############################################"
 
-    clf = linear_model.SGDClassifier()
-    X_train, X_test, y_train, y_test = train_test_split(data_X, ture_y, test_size=0.2,random_state=0)
-    clf.fit(X_train, y_train)
-    y_temp=clf.predict(X_test)
-    print  accuracy_score(y_test, y_temp)
-    print(classification_report(y_test, y_temp, target_names=name))
-    print "###############################################"
+        clf = linear_model.SGDClassifier()
+        X_train, X_test, y_train, y_test = train_test_split(data_X, ture_y, test_size=0.2,random_state=0)
+        clf.fit(X_train, y_train)
+        y_temp=clf.predict(X_test)
+        print  accuracy_score(y_test, y_temp)
+        print(classification_report(y_test, y_temp, target_names=name))
+        print "###############################################"
+        print "Confusion S"
+        cm = confusion_matrix(y_test, y_temp)
+        print(cm)
+        print "Confusion E"
+
     # print name
     # print ture_y
     #
